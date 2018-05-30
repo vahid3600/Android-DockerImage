@@ -2,56 +2,99 @@
 
 https://hub.docker.com/r/inovex/gitlab-ci-android/
 
-Contains the Android SDK, NDK and common packages necessary for building Android Apps in Gitlab CI (for example).
-Make sure caching is enabled for the CI environment to speed up builds.
-
-Example yml which has dependency caching enabled:
-
 ```
-image: inovex/gitlab-ci-android
+image: behdad222/android-sdk:v1
 
-stages:
-- release
-
-variables:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 before_script:
-- export GRADLE_USER_HOME=$(pwd)/.gradle
-- chmod +x ./gradlew
 
+  - chmod +x ./gradlew
+  
+  - export VERSION_NAME=`egrep '^[[:blank:]]+sdkVersion[[:blank:]]'  ./build.gradle | awk '{print $3}' | sed s/\'//g`
+  
+  - touch ./info.txt
+  - echo "Build date          $(date)"                >> ./info.txt
+  - echo "SDK version         ${VERSION_NAME}"        >> ./info.txt
+  - echo "Git branch          ${CI_COMMIT_REF_NAME}"  >> ./info.txt
+  - echo "Git commit          ${CI_COMMIT_SHA}"       >> ./info.txt
+  - echo "Gitlab pipeline     ${CI_PIPELINE_ID}"      >> ./info.txt
+  
+
+stages:
+  - code_quality
+  - build
+  - release
+  - publish
+  
+  
 cache:
   key: ${CI_PROJECT_ID}
   paths:
   - .gradle/
 
-build:
-    stage: release
-    script:
-        - ./gradlew clean assembleRelease
-    artifacts:
-        expire_in: 2 weeks
-        paths:
-            - app/build/outputs/apk/*.apk
-    only:
-        - develop
-```
 
-## License
+static_analysis:
+  stage: code_quality
+  
+  script:
+    - ./gradlew checkstyle
+    
+  allow_failure: true
+    
+  artifacts:
+    name: "reports_${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}"
+    
+    paths:
+      - ./build/reports/checkstyle/checkstyle.html
+      - ./info.txt
+      
+    when: always
+      
 
-```
-Gitlab CI Android
-Copyright (c) 2017 inovex GmbH (https://www.inovex.de)
+build-sdk-android:
+  stage: build
+  
+  script:
+    - ./gradlew assembleAndroid
+    - mv ./sdk/build/outputs/aar/sdk-android-debug.aar ./sdk-android-debug-v$VERSION_NAME.aar
+    
+  artifacts:
+    paths:
+    - ./*.aar
+    - ./info.txt
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+build-app-android:
+  stage: build
+  
+  script:
+    - ./gradlew assembleDebug
+    - mv ./app/build/outputs/apk/debug/app-debug.apk ./app-android-debug-v$VERSION_NAME.apk
+    
+  artifacts:
+    paths:
+    - ./*.apk
+    - ./info.txt
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+
+release-sdk-android:
+  stage: release
+  
+  only:
+    - master
+    - release
+    
+  script:
+    - ./gradlew assembleAndroidRelease
+    - mv ./sdk/build/outputs/aar/sdk-android-release.aar ./sdk-android-release-v$VERSION_NAME.aar
+    - mv ./sdk/build/outputs/logs/manifest-merger-android-release-report.txt .
+    - mv ./sdk/build/outputs/mapping/android/release/* .
+    
+  artifacts:
+    paths:
+    - ./*.aar
+    - ./*.txt
+  
+  when: manual
+
 ```
