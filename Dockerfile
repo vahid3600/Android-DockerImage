@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 MAINTAINER behdad.222 <behdad.222@gmail.com>
 
-ENV SDK_TOOLS_VERSION "3859397"
+ENV SDK_TOOLS_VERSION "4333796"
 
 ENV ANDROID_HOME "/android-sdk-linux"
 ENV PATH "$PATH:${ANDROID_HOME}/tools"
@@ -14,6 +14,8 @@ RUN apt-get install -y git
 RUN apt-get install -y openjdk-8-jdk
 RUN apt-get install -y wget
 RUN apt-get install unzip
+RUN apt-get install curl
+RUN apt-get install jq
 
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
