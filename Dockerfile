@@ -13,9 +13,11 @@ RUN apt-get upgrade -y
 RUN apt-get install -y git
 RUN apt-get install -y openjdk-8-jdk
 RUN apt-get install -y wget
-RUN apt-get install unzip
-RUN apt-get install curl
-RUN apt-get install jq
+RUN apt-get install -y unzip
+RUN apt-get install -y curl
+RUN apt-get install -y jq
+RUN apt-get install -y npm
+RUN apt-get install -y gradle
 
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -34,3 +36,4 @@ ADD packages.txt .
 RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < ./packages.txt && \
     ${ANDROID_HOME}/tools/bin/sdkmanager ${PACKAGES}
     
+RUN npm install -g cordova
