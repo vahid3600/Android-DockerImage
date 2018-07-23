@@ -4,7 +4,6 @@ MAINTAINER behdad.222 <behdad.222@gmail.com>
 
 ENV SDK_TOOLS_VERSION "4333796"
 ENV GRADLE_VERSION "4.4"
-ENV GRADLE_HASH "9btp8klzlmt086cnobv9fn3mv"
 
 ENV ANDROID_HOME "/android-sdk-linux"
 ENV PATH "$PATH:${ANDROID_HOME}/tools"
