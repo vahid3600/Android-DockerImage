@@ -29,5 +29,7 @@ ADD packages.txt .
 RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < ./packages.txt && \
     ${ANDROID_HOME}/tools/bin/sdkmanager ${PACKAGES}
 
-RUN npm install -g cordova
-RUN npm install --save-dev ci-publish
+RUN npm install -g cordova \
+        && npm install -g react-native-cli \
+        && npm install --save-dev ci-publish
+
