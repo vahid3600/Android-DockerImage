@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 MAINTAINER behdad.222 <behdad.222@gmail.com>
 
 ENV SDK_TOOLS_VERSION "4333796"
-ENV GRADLE_VERSION "4.4"
+ENV GRADLE_VERSION "4.6"
 
 ENV ANDROID_HOME "/android-sdk-linux"
 ENV PATH "$PATH:${ANDROID_HOME}/tools"
@@ -29,7 +29,8 @@ ADD packages.txt .
 RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < ./packages.txt && \
     ${ANDROID_HOME}/tools/bin/sdkmanager ${PACKAGES}
 
-RUN npm install -g cordova \
+RUN npm install -g npm \
+        && npm install -g cordova \
         && npm install -g react-native-cli \
         && npm install --save-dev ci-publish
 
