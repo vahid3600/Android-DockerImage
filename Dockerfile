@@ -6,15 +6,17 @@ ENV SDK_TOOLS_VERSION "4333796"
 ENV GRADLE_VERSION "4.10.1"
 
 ENV ANDROID_HOME "/android-sdk-linux"
-ENV PATH "$PATH:${ANDROID_HOME}/tools"
+ENV PATH "$PATH:${ANDROID_HOME}/tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
 
 RUN apt-get update \
 	&& apt-get upgrade -y \
 	&& apt-get install -y openjdk-8-jdk \
-	&& apt-get install -y git wget unzip curl jq npm gradle zip \
+	&& apt-get install -y git wget unzip curl jq npm zip \
 	&& apt-get clean
 
-RUN wget --output-document=gradle-${GRADLE_VERSION}-all.zip https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip \
+RUN wget --output-document=gradle-${GRADLE_VERSION}-all.zip https://downloads.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip \
+	&& mkdir /opt/gradle \
+	&& unzip -d /opt/gradle gradle-${GRADLE_VERSION}-all.zip \
 	&& mkdir -p ${ANDROID_HOME} \
 	&& wget --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${SDK_TOOLS_VERSION}.zip \
 	&& unzip ./android-sdk.zip -d ${ANDROID_HOME} \
@@ -33,4 +35,3 @@ RUN npm install -g npm \
         && npm install -g cordova \
         && npm install -g react-native-cli \
         && npm install --save-dev ci-publish
-
