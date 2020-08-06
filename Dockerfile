@@ -2,37 +2,31 @@ FROM ubuntu:18.04
 
 MAINTAINER behdad.222 <behdad.222@gmail.com>
 
-ENV SDK_TOOLS_VERSION "4333796"
-ENV GRADLE_VERSION "5.4.1"
+ARG SDK_TOOLS_VERSION=6514223
+ARG GRADLE_VERSION=6.1.1
 
 ENV ANDROID_HOME "/android-sdk-linux"
 ENV PATH "$PATH:${ANDROID_HOME}/tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
 
 RUN apt-get update \
 	&& apt-get upgrade -y \
-	&& apt-get install -y openjdk-8-jdk \
-	&& apt-get install -y git wget unzip curl jq npm zip \
+	&& apt-get install -y git jq wget unzip curl zip openjdk-8-jdk \
 	&& apt-get clean
 
 RUN wget --output-document=gradle-${GRADLE_VERSION}-all.zip https://downloads.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip \
-	&& mkdir /opt/gradle \
-	&& unzip -d /opt/gradle gradle-${GRADLE_VERSION}-all.zip \
-	&& rm ./gradle-${GRADLE_VERSION}-all.zip \
-	&& mkdir -p ${ANDROID_HOME} \
-	&& wget --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${SDK_TOOLS_VERSION}.zip \
-	&& unzip ./android-sdk.zip -d ${ANDROID_HOME} \
-	&& rm ./android-sdk.zip \
-	&& mkdir ~/.android \
-	&& touch ~/.android/repositories.cfg
+        && mkdir -p /opt/gradle \
+        && unzip gradle-${GRADLE_VERSION}-all.zip -d /opt/gradle \
+        && rm ./gradle-${GRADLE_VERSION}-all.zip \
+        && mkdir -p ${ANDROID_HOME} \
+        && wget --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${SDK_TOOLS_VERSION}_latest.zip \
+        && unzip ./android-sdk.zip -d ${ANDROID_HOME} \
+        && rm ./android-sdk.zip \
+        && mkdir -p ~/.android \
+        && touch ~/.android/repositories.cfg
 
-RUN yes | ${ANDROID_HOME}/tools/bin/sdkmanager --licenses \
-	&& ${ANDROID_HOME}/tools/bin/sdkmanager --update
+RUN yes | ${ANDROID_HOME}/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --licenses \
+        && ${ANDROID_HOME}/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --update
 
 ADD packages.txt .
 RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < ./packages.txt && \
-    ${ANDROID_HOME}/tools/bin/sdkmanager ${PACKAGES}
-
-RUN npm install -g npm \
-        && npm install -g cordova \
-        && npm install -g react-native-cli \
-        && npm install --save-dev ci-publish
+    ${ANDROID_HOME}/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} ${PACKAGES}
