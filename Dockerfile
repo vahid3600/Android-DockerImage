@@ -4,6 +4,7 @@ MAINTAINER behdad.222 <behdad.222@gmail.com>
 
 ARG SDK_TOOLS_VERSION=6514223
 ARG GRADLE_VERSION=6.1.1
+ARG DEBIAN_FRONTEND=noninteractive
 
 ENV ANDROID_HOME "/android-sdk-linux"
 ENV PATH "$PATH:${ANDROID_HOME}/tools:/opt/gradle/gradle-${GRADLE_VERSION}/bin"
