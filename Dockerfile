@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:21.04
 
 MAINTAINER behdad222 <behdad.222@gmail.com>
 
